@@ -12,19 +12,19 @@ import { Login } from './pages/Login';
 export const router = createBrowserRouter([
   {
     path: '/login',
-    Component: Login,
+    element: <Login />,
   },
   {
     path: '/',
-    Component: RootLayout,
+    element: <RootLayout />,
     children: [
-      { index: true, Component: Dashboard },
-      { path: 'flights', Component: Flights },
-      { path: 'hotels', Component: Hotels },
-      { path: 'cars', Component: Cars },
-      { path: 'activities', Component: Activities },
-      { path: 'restaurants', Component: Restaurants },
-      { path: 'bookings', Component: Bookings },
+      { index: true, element: <Dashboard /> },
+      { path: 'flights', element: <Flights /> },
+      { path: 'hotels', element: <Hotels /> },
+      { path: 'cars', element: <Cars /> },
+      { path: 'activities', element: <Activities /> },
+      { path: 'restaurants', element: <Restaurants /> },
+      { path: 'bookings', element: <Bookings /> },
     ],
   },
 ]);

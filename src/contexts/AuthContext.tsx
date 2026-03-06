@@ -27,8 +27,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const parsedUser = JSON.parse(savedUser);
         setUser(parsedUser);
-        // Connect to WebSocket
-        wsService.connect(parsedUser._id);
+        // Connect to WebSocket (wrapped in try-catch for preview environments)
+        try {
+          wsService.connect(parsedUser._id);
+        } catch (wsError) {
+          console.log('WebSocket connection skipped in preview environment');
+        }
       } catch (error) {
         console.error('Error parsing saved user:', error);
         localStorage.removeItem('authToken');
@@ -47,8 +51,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
       
-      // Connect to WebSocket
-      wsService.connect(response.user._id);
+      // Connect to WebSocket (wrapped in try-catch for preview environments)
+      try {
+        wsService.connect(response.user._id);
+      } catch (wsError) {
+        console.log('WebSocket connection skipped in preview environment');
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -63,8 +71,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
       
-      // Connect to WebSocket
-      wsService.connect(response.user._id);
+      // Connect to WebSocket (wrapped in try-catch for preview environments)
+      try {
+        wsService.connect(response.user._id);
+      } catch (wsError) {
+        console.log('WebSocket connection skipped in preview environment');
+      }
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -78,8 +90,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('user');
       setUser(null);
       
-      // Disconnect WebSocket
-      wsService.disconnect();
+      // Disconnect WebSocket (wrapped in try-catch for preview environments)
+      try {
+        wsService.disconnect();
+      } catch (wsError) {
+        console.log('WebSocket disconnection skipped in preview environment');
+      }
     } catch (error) {
       console.error('Logout error:', error);
     }

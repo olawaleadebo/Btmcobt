@@ -4,6 +4,9 @@ import type { WebSocketEvent } from '../types';
 // TODO: Replace with your WebSocket server URL
 const WS_URL = process.env.VITE_WS_URL || 'http://localhost:5000';
 
+// Check if we're in a browser environment that supports WebSocket
+const isWebSocketSupported = typeof window !== 'undefined' && 'WebSocket' in window;
+
 class WebSocketService {
   private socket: Socket | null = null;
   private listeners: Map<string, Set<(data: any) => void>> = new Map();
@@ -26,50 +29,63 @@ class WebSocketService {
    * });
    */
   connect(userId: string): void {
+    // Skip WebSocket in unsupported environments (like Figma Make preview)
+    if (!isWebSocketSupported) {
+      console.log('WebSocket not supported in this environment, skipping connection');
+      return;
+    }
+
     if (this.socket?.connected) {
       return;
     }
 
-    this.socket = io(WS_URL, {
-      auth: {
-        token: localStorage.getItem('authToken'),
-      },
-      transports: ['websocket'],
-    });
+    try {
+      this.socket = io(WS_URL, {
+        auth: {
+          token: localStorage.getItem('authToken'),
+        },
+        transports: ['websocket', 'polling'], // Fallback to polling
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 3,
+      });
 
-    this.socket.on('connect', () => {
-      console.log('WebSocket connected');
-      // Subscribe to user-specific events
-      this.socket?.emit('subscribe', userId);
-    });
+      this.socket.on('connect', () => {
+        console.log('WebSocket connected');
+        // Subscribe to user-specific events
+        this.socket?.emit('subscribe', userId);
+      });
 
-    this.socket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
-    });
+      this.socket.on('disconnect', () => {
+        console.log('WebSocket disconnected');
+      });
 
-    // Listen for booking updates
-    this.socket.on('booking_update', (data: WebSocketEvent) => {
-      this.notifyListeners('booking_update', data);
-    });
+      // Listen for booking updates
+      this.socket.on('booking_update', (data: WebSocketEvent) => {
+        this.notifyListeners('booking_update', data);
+      });
 
-    // Listen for payment updates
-    this.socket.on('payment_update', (data: WebSocketEvent) => {
-      this.notifyListeners('payment_update', data);
-    });
+      // Listen for payment updates
+      this.socket.on('payment_update', (data: WebSocketEvent) => {
+        this.notifyListeners('payment_update', data);
+      });
 
-    // Listen for notifications
-    this.socket.on('notification', (data: WebSocketEvent) => {
-      this.notifyListeners('notification', data);
-    });
+      // Listen for notifications
+      this.socket.on('notification', (data: WebSocketEvent) => {
+        this.notifyListeners('notification', data);
+      });
 
-    // Listen for price changes (powered by Redis cache)
-    this.socket.on('price_change', (data: WebSocketEvent) => {
-      this.notifyListeners('price_change', data);
-    });
+      // Listen for price changes (powered by Redis cache)
+      this.socket.on('price_change', (data: WebSocketEvent) => {
+        this.notifyListeners('price_change', data);
+      });
 
-    this.socket.on('error', (error) => {
-      console.error('WebSocket error:', error);
-    });
+      this.socket.on('error', (error) => {
+        console.error('WebSocket error:', error);
+      });
+    } catch (error) {
+      console.error('Failed to initialize WebSocket:', error);
+    }
   }
 
   /**

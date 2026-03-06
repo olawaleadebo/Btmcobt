@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router';
 import { Sidebar } from '../components/Sidebar';
 import { useAuth } from '../../contexts/AuthContext';
-import { Toaster } from '../components/ui/sonner';
 
 export const RootLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -35,7 +34,6 @@ export const RootLayout: React.FC = () => {
       <main className="flex-1 overflow-y-auto">
         <Outlet />
       </main>
-      <Toaster />
     </div>
   );
 };
