@@ -101,10 +101,13 @@ MONGODB_URI=mongodb://localhost:27017/corporate-booking
 JWT_SECRET=your-very-long-and-secure-secret-key-here
 JWT_EXPIRES_IN=7d
 
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
+# Redis (Upstash or cloud Redis)
+REDIS_URL=rediss://default:YOUR_PASSWORD@your-redis.upstash.io:6379
+
+# OR for local Redis, use these instead:
+# REDIS_HOST=localhost
+# REDIS_PORT=6379
+# REDIS_PASSWORD=
 
 # Amadeus API
 AMADEUS_CLIENT_ID=your-amadeus-client-id
@@ -165,7 +168,7 @@ sudo systemctl start redis
 1. Go to https://upstash.com/
 2. Create free Redis database
 3. Get connection details
-4. Update `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` in `.env`
+4. Update `REDIS_URL` in `.env`
 
 #### Amadeus API
 
